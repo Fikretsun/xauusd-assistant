@@ -536,6 +536,10 @@
       <input type="password" id="claude-key" placeholder="sk-ant-..." />
     </div>
     <div class="api-field">
+      <label>PROXY URL <span style="color:var(--gold);font-size:9px">(виж инструкции)</span></label>
+      <input type="text" id="proxy-url" placeholder="https://твоя-worker.workers.dev" />
+    </div>
+    <div class="api-field">
       <label>TWELVE DATA API KEY</label>
       <input type="password" id="twelve-key" placeholder="Вземи от twelvedata.com" />
     </div>
@@ -682,6 +686,7 @@
 // ═══════════════════════════════════════════════
 const state = {
   claudeKey: '',
+  proxyUrl: '',
   twelveKey: '',
   newsKey:   '',
   marketData: null,
@@ -742,9 +747,11 @@ HARD RULES: NEVER say buy/sell as instruction. NEVER give specific entry price a
 // ═══════════════════════════════════════════════
 window.addEventListener('load', () => {
   state.claudeKey = localStorage.getItem('claude_key') || '';
+  state.proxyUrl   = localStorage.getItem('proxy_url')  || '';
   state.twelveKey = localStorage.getItem('twelve_key') || '';
   state.newsKey   = localStorage.getItem('news_key')   || '';
   if (state.claudeKey) document.getElementById('claude-key').value = state.claudeKey;
+  if (state.proxyUrl)   document.getElementById('proxy-url').value   = state.proxyUrl;
   if (state.twelveKey) document.getElementById('twelve-key').value = state.twelveKey;
   if (state.newsKey)   document.getElementById('news-key').value   = state.newsKey;
 
@@ -763,9 +770,11 @@ window.addEventListener('load', () => {
 // ═══════════════════════════════════════════════
 function saveKeys() {
   state.claudeKey = document.getElementById('claude-key').value.trim();
+  state.proxyUrl   = document.getElementById('proxy-url').value.trim();
   state.twelveKey = document.getElementById('twelve-key').value.trim();
   state.newsKey   = document.getElementById('news-key').value.trim();
   localStorage.setItem('claude_key', state.claudeKey);
+  localStorage.setItem('proxy_url',   state.proxyUrl);
   localStorage.setItem('twelve_key', state.twelveKey);
   localStorage.setItem('news_key',   state.newsKey);
   showToast('Ключовете са запазени');
@@ -1045,8 +1054,9 @@ async function sendMessage(overrideText) {
   state.conversation.push({ role: 'user', content: userMsg });
   if (state.conversation.length > 20) state.conversation = state.conversation.slice(-20);
 
+  const endpoint = state.proxyUrl || 'https://api.anthropic.com/v1/messages';
   try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    const response = await fetch(endpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
