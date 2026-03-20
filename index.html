@@ -749,11 +749,11 @@ window.addEventListener('load', () => {
   state.claudeKey = localStorage.getItem('claude_key') || '';
   state.proxyUrl   = localStorage.getItem('proxy_url')  || '';
   state.twelveKey = localStorage.getItem('twelve_key') || '';
-  state.newsKey   = localStorage.getItem('news_key')   || '';
+  state.newsKey   = ''; // RSS - no key needed
   if (state.claudeKey) document.getElementById('claude-key').value = state.claudeKey;
   if (state.proxyUrl)   document.getElementById('proxy-url').value   = state.proxyUrl;
   if (state.twelveKey) document.getElementById('twelve-key').value = state.twelveKey;
-  if (state.newsKey)   document.getElementById('news-key').value   = state.newsKey;
+  // news-key field removed
 
   state.journal = JSON.parse(localStorage.getItem('journal') || '[]');
   renderJournal();
@@ -772,11 +772,11 @@ function saveKeys() {
   state.claudeKey = document.getElementById('claude-key').value.trim();
   state.proxyUrl   = document.getElementById('proxy-url').value.trim();
   state.twelveKey = document.getElementById('twelve-key').value.trim();
-  state.newsKey   = document.getElementById('news-key').value.trim();
+  state.newsKey   = ''; // RSS - no key needed
   localStorage.setItem('claude_key', state.claudeKey);
   localStorage.setItem('proxy_url',   state.proxyUrl);
   localStorage.setItem('twelve_key', state.twelveKey);
-  localStorage.setItem('news_key',   state.newsKey);
+  // news_key not needed
   showToast('Ключовете са запазени');
   fetchAllData();
 }
