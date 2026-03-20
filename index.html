@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>XAU/USD Trading Assistant</title>
+<title>XAU/USD Ticaret Asistanı</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -515,7 +515,7 @@
 
 <!-- HEADER -->
 <header>
-  <div class="logo">XAU<span>/USD</span> ASSISTANT</div>
+  <div class="logo">XAU<span>/USD</span> ASİSTAN</div>
   <span class="data-badge badge-live" id="data-badge">● DEMO</span>
   <div class="header-price">
     <div class="price-display">
@@ -532,27 +532,27 @@
   <div class="sidebar-section">
     <div class="section-label">API Keys</div>
     <div class="api-field">
-      <label>ANTHROPIC API KEY</label>
+      <label>ANTHROPİC API KEY</label>
       <input type="password" id="claude-key" placeholder="sk-ant-..." />
     </div>
     <div class="api-field">
-      <label>PROXY URL <span style="color:var(--gold);font-size:9px">(виж инструкции)</span></label>
-      <input type="text" id="proxy-url" placeholder="https://твоя-worker.workers.dev" />
+      <label>PROXY URL <span style="color:var(--gold);font-size:9px">(talimatları gör)</span></label>
+      <input type="text" id="proxy-url" placeholder="https://senin-worker.workers.dev" />
     </div>
     <div class="api-field">
       <label>TWELVE DATA API KEY</label>
       <input type="password" id="twelve-key" placeholder="Вземи от twelvedata.com" />
     </div>
     <div class="api-field">
-      <label>НОВИНИ <span style="color:var(--green);font-size:9px">● АВТОМАТИЧНО (RSS)</span></label>
-      <div style="font-size:10px;color:var(--text3);padding:4px 0">Reuters + Kitco — без API ключ</div>
+      <label>HABERLER <span style="color:var(--green);font-size:9px">● OTOMATİK (RSS)</span></label>
+      <div style="font-size:10px;color:var(--text3);padding:4px 0">Reuters + Kitco — API anahtarı gerekmez</div>
     </div>
-    <button class="btn btn-gold" onclick="saveKeys()">▶ ЗАПАЗИ И СВЪРЖИ</button>
-    <button class="btn btn-ghost" onclick="fetchAllData()">↻ ОБНОВИ ДАННИ</button>
+    <button class="btn btn-gold" onclick="saveKeys()">▶ KAYDET VE BAĞLAN</button>
+    <button class="btn btn-ghost" onclick="fetchAllData()">↻ VERİLERİ GÜNCELLE</button>
   </div>
 
   <div class="sidebar-section">
-    <div class="section-label">Timeframes</div>
+    <div class="section-label">Zaman Dilimleri</div>
     <div class="tf-grid">
       <div class="tf-pill active" onclick="setTF('1h',this)">1H</div>
       <div class="tf-pill" onclick="setTF('4h',this)">4H</div>
@@ -590,28 +590,28 @@
   <div class="sidebar-section" style="flex:1">
     <div class="section-label">Бързи команди</div>
     <div class="cmd-grid">
-      <button class="cmd-btn" onclick="quickCmd('анализ')">
+      <button class="cmd-btn" onclick="quickCmd('analiz')">
         <span class="cmd-icon">📊</span>Пълен анализ
       </button>
-      <button class="cmd-btn" onclick="quickCmd('структура')">
-        <span class="cmd-icon">🏗️</span>Структура
+      <button class="cmd-btn" onclick="quickCmd('yapı')">
+        <span class="cmd-icon">🏗️</span>Yapı
       </button>
-      <button class="cmd-btn" onclick="quickCmd('нива')">
-        <span class="cmd-icon">📍</span>Нива
+      <button class="cmd-btn" onclick="quickCmd('seviyeler')">
+        <span class="cmd-icon">📍</span>Seviyeler
       </button>
-      <button class="cmd-btn" onclick="quickCmd('новини')">
-        <span class="cmd-icon">📰</span>Новини
+      <button class="cmd-btn" onclick="quickCmd('haberler')">
+        <span class="cmd-icon">📰</span>Haberler
       </button>
-      <button class="cmd-btn" onclick="quickCmd('сесия')">
+      <button class="cmd-btn" onclick="quickCmd('seans')">
         <span class="cmd-icon">⏰</span>Сесия
       </button>
-      <button class="cmd-btn" onclick="quickCmd('сценарии')">
+      <button class="cmd-btn" onclick="quickCmd('senaryolar')">
         <span class="cmd-icon">🎯</span>Сценарии
       </button>
-      <button class="cmd-btn" onclick="quickCmd('дневник')">
+      <button class="cmd-btn" onclick="quickCmd('günlük')">
         <span class="cmd-icon">📓</span>Дневник
       </button>
-      <button class="cmd-btn" onclick="quickCmd('ревю')">
+      <button class="cmd-btn" onclick="quickCmd('inceleme')">
         <span class="cmd-icon">🔍</span>Ревю
       </button>
     </div>
@@ -625,21 +625,21 @@
       <div class="msg-avatar ai">Au</div>
       <div class="msg-body">
         <div class="msg-meta">XAU/USD ASSISTANT · Сега</div>
-        <div class="msg-content">Добре дошъл в твоя XAU/USD Trading Assistant.
+        <div class="msg-content">XAU/USD Trading Assistant'a hoş geldin.
 
-За да започнеш:
-1. Въведи API ключовете си в лявата лента
-2. Натисни "ЗАПАЗИ И СВЪРЖИ" — системата ще зареди live данни
-3. Натисни "Пълен анализ" или напиши "анализ"
+Başlamak için:
+1. 1. Sol paneldeki API anahtarlarını gir
+2. 2. "KAYDET VE BAĞLAN" butonuna bas — sistem canlı veri yükleyecek
+3. 3. "Tam Analiz" butonuna bas veya "analiz" yaz
 
-Ако нямаш API ключове все още, мога да работя с демо данни.
-Напиши "демо анализ" за да видиш как работи системата.</div>
+API anahtarın yoksa demo verilerle çalışabilirim.
+"demo analiz" yaz ve sistemin nasıl çalıştığını gör.</div>
       </div>
     </div>
   </div>
 
   <div class="chat-input-area">
-    <textarea id="chat-input" placeholder="Напиши съобщение... (Enter = изпрати, Shift+Enter = нов ред)" rows="1"></textarea>
+    <textarea id="chat-input" placeholder="Mesaj yaz... (Enter = gönder, Shift+Enter = yeni satır)" rows="1"></textarea>
     <button id="send-btn" onclick="sendMessage()">➤</button>
   </div>
 </main>
@@ -653,7 +653,7 @@
         <div class="event-impact impact-high"></div>
         <div class="event-info">
           <div class="event-name">— Зарежда се —</div>
-          <div class="event-time">Добави API ключ</div>
+          <div class="event-time">Добави API anahtar</div>
         </div>
       </div>
     </div>
@@ -663,17 +663,17 @@
     <div class="section-label">Последни новини</div>
     <div id="news-list">
       <div class="news-item">
-        <div class="news-title">Новините ще се заредят след въвеждане на NewsAPI ключ</div>
-        <div class="news-source">gnews.io — безплатен план (100 req/ден)</div>
+        <div class="news-title">Haberler otomatik yüklenecek (RSS)</div>
+        <div class="news-source">Reuters + ForexLive (otomatik)</div>
       </div>
     </div>
   </div>
 
   <div class="panel-section">
     <div class="section-label">Трейдинг дневник</div>
-    <button class="btn btn-ghost" onclick="quickCmd('дневник')" style="margin-bottom:10px">+ Нов трейд</button>
+    <button class="btn btn-ghost" onclick="quickCmd('günlük')" style="margin-bottom:10px">+ Yeni İşlem</button>
     <div id="journal-list">
-      <div style="color:var(--text3);font-size:11px">Все още няма записани трейдове.</div>
+      <div style="color:var(--text3);font-size:11px">Henüz kayıtlı işlem yok.</div>
     </div>
   </div>
 </div>
@@ -705,7 +705,7 @@ const state = {
 // System prompt — твоята Reasoning Engine логика
 const SYSTEM_PROMPT = `You are an elite XAU/USD trading assistant. Your role is NOT to make trading decisions — your role is to think, analyze, synthesize and present context so the trader can make better decisions themselves.
 
-You speak Bulgarian (български) at all times.
+You speak Turkish (Türkçe) at all times.
 
 You are a Senior Market Analyst specializing in XAU/USD (Gold vs US Dollar).
 You think in multiple timeframes simultaneously.
@@ -730,15 +730,15 @@ REASONING ENGINE — after blueprints: resolve conflicts (higher TF wins), build
 OUTPUT FORMAT — always structure response with emoji sections:
 📊 XAU/USD АНАЛИЗ | [date/time]
 🕯️ Пазарна структура [analysis + Alignment]
-📍 Ключови нива [Resistance/Support/position]
+📍 Anahtarови нива [Resistance/Support/position]
 📈 Индикатори [RSI, EMA + bias]
-📰 Новини & Фундамент [news + fundamental bias]
+📰 Haberler & Фундамент [news + fundamental bias]
 ⏰ Сесия [session info]
 🧠 Сценарии [Primary + Alternative]
 ⚠️ Риск ниво: [LOW/MEDIUM/HIGH]
 🎯 Action Bias: [WAIT/WATCH/CAUTIOUS LONG BIAS/CAUTIOUS SHORT BIAS]
 
-QUICK COMMANDS: "анализ"=full pipeline, "структура"=BP1 only, "нива"=BP2 only, "новини"=BP4 only, "сесия"=BP5 only, "сценарии"=synthesis only, "дневник"=help log a trade, "ревю"=review a past trade.
+QUICK COMMANDS: "analiz"=full pipeline, "yapı"=BP1 only, "seviyeler"=BP2 only, "haberler"=BP4 only, "seans"=BP5 only, "senaryolar"=synthesis only, "günlük"=help log a trade, "inceleme"=review a past trade.
 
 HARD RULES: NEVER say buy/sell as instruction. NEVER give specific entry price as recommendation. NEVER predict price with certainty. ALWAYS flag high-impact events within 2h. ALWAYS show reasoning. ALWAYS give both scenarios.`;
 
@@ -777,7 +777,7 @@ function saveKeys() {
   localStorage.setItem('proxy_url',   state.proxyUrl);
   localStorage.setItem('twelve_key', state.twelveKey);
   // news_key not needed
-  showToast('Ключовете са запазени');
+  showToast('Anahtarlar kaydedildi');
   fetchAllData();
 }
 
@@ -786,11 +786,11 @@ function saveKeys() {
 // ═══════════════════════════════════════════════
 async function fetchAllData() {
   if (!state.twelveKey) { loadDemoData(); return; }
-  showToast('Зарежда данни...');
+  showToast('Veriler yükleniyor...');
   await Promise.all([fetchPrice(), fetchCandles('1h'), fetchCandles('4h'), fetchCandles('1day'), fetchRSI('1h'), fetchRSI('4h'), fetchEMA(50), fetchEMA(200)]);
   await fetchNews(); // RSS - no key needed
-  showToast('Данните са заредени ✓');
-  document.getElementById('data-badge').textContent = '● LIVE';
+  showToast('Veriler yüklendi ✓');
+  document.getElementById('data-badge').textContent = '● CANLI';
   document.getElementById('data-badge').className = 'data-badge badge-live';
 }
 
@@ -902,9 +902,9 @@ async function fetchNews() {
 
 function showStaticNews() {
   state.news = [
-    { title: 'Gold consolidates after sharp selloff — markets await Fed signals', source: { name: 'Market Watch' }, publishedAt: new Date().toISOString(), url: 'https://www.marketwatch.com' },
-    { title: 'Dollar holds gains as risk sentiment remains cautious', source: { name: 'ForexLive' }, publishedAt: new Date(Date.now()-3600000).toISOString(), url: 'https://www.forexlive.com' },
-    { title: 'XAU/USD: Key levels to watch after extreme volatility', source: { name: 'Investing.com' }, publishedAt: new Date(Date.now()-7200000).toISOString(), url: 'https://www.investing.com' },
+    { title: 'Altın, sert satışın ardından konsolidasyon — piyasalar Fed sinyali bekliyor', source: { name: 'Market Watch' }, publishedAt: new Date().toISOString(), url: 'https://www.marketwatch.com' },
+    { title: 'Dolar, temkinli risk ortamında kazanımlarını koruyor', source: { name: 'ForexLive' }, publishedAt: new Date(Date.now()-3600000).toISOString(), url: 'https://www.forexlive.com' },
+    { title: 'XAU/USD: Aşırı volatilite sonrası izlenecek kritik seviyeler', source: { name: 'Investing.com' }, publishedAt: new Date(Date.now()-7200000).toISOString(), url: 'https://www.investing.com' },
   ];
   renderNews();
 }
@@ -935,9 +935,9 @@ function updateTrend() {
   const ema200 = parseFloat(state.ema200);
   if (!price || !ema50 || !ema200) return;
   const el = document.getElementById('trend-h1');
-  if (price > ema50 && ema50 > ema200) { el.textContent = '↑ Bullish'; el.className = 'ind-val bull'; }
-  else if (price < ema50 && ema50 < ema200) { el.textContent = '↓ Bearish'; el.className = 'ind-val bear'; }
-  else { el.textContent = '↔ Mixed'; el.className = 'ind-val neutral'; }
+  if (price > ema50 && ema50 > ema200) { el.textContent = '↑ Yükseliş'; el.className = 'ind-val bull'; }
+  else if (price < ema50 && ema50 < ema200) { el.textContent = '↓ Düşüş'; el.className = 'ind-val bear'; }
+  else { el.textContent = '↔ Karışık'; el.className = 'ind-val neutral'; }
 }
 
 function renderNews() {
@@ -953,7 +953,7 @@ function renderNews() {
 function renderJournal() {
   const el = document.getElementById('journal-list');
   if (!state.journal.length) {
-    el.innerHTML = '<div style="color:var(--text3);font-size:11px">Все още няма записани трейдове.</div>';
+    el.innerHTML = '<div style="color:var(--text3);font-size:11px">Henüz kayıtlı işlem yok.</div>';
     return;
   }
   el.innerHTML = state.journal.slice(-5).reverse().map(t => `
@@ -979,15 +979,15 @@ function loadDemoData() {
   state.candlesH4 = generateDemoCandles(demoPrice, 10, 240);
   state.candlesD1 = generateDemoCandles(demoPrice, 7, 1440);
   state.news = [
-    { title: 'Gold hits new highs as Fed signals rate pause', source: { name: 'Reuters' }, publishedAt: new Date(Date.now()-3600000).toISOString(), url: '#' },
-    { title: 'Dollar weakens ahead of NFP data release', source: { name: 'Bloomberg' }, publishedAt: new Date(Date.now()-7200000).toISOString(), url: '#' },
-    { title: 'Central banks continue record gold purchases in Q1', source: { name: 'FT' }, publishedAt: new Date(Date.now()-10800000).toISOString(), url: '#' },
+    { title: 'Altın, Fed faiz duraklaması sinyaliyle yeni zirveler görüyor', source: { name: 'Reuters' }, publishedAt: new Date(Date.now()-3600000).toISOString(), url: '#' },
+    { title: 'Dolar, NFP verisi öncesi değer kaybediyor', source: { name: 'Bloomberg' }, publishedAt: new Date(Date.now()-7200000).toISOString(), url: '#' },
+    { title: 'Merkez bankaları altın alımlarına rekor hızda devam ediyor', source: { name: 'FT' }, publishedAt: new Date(Date.now()-10800000).toISOString(), url: '#' },
   ];
   updatePriceDisplay(demoPrice, 3232.10);
   updateRSI('rsi-h1', '58.4'); updateRSI('rsi-h4', '62.1');
   document.getElementById('ema50').textContent  = '3218.40';
   document.getElementById('ema200').textContent = '3156.80';
-  document.getElementById('trend-h1').textContent = '↑ Bullish';
+  document.getElementById('trend-h1').textContent = '↑ Yükseliş';
   document.getElementById('trend-h1').className  = 'ind-val bull';
   renderNews();
   document.getElementById('data-badge').textContent = '● DEMO';
@@ -1035,7 +1035,7 @@ Live Price: $${price}
 Time: ${now.toUTCString()}
 Session: ${session}
 
-[TIMEFRAMES — последни 5 свещи]
+[ZAMAN DİLİMLERİ — последни 5 свещи]
 D1 (Daily): ${fmtCandles(state.candlesD1)}
 H4 (4-hour): ${fmtCandles(state.candlesH4)}
 H1 (1-hour): ${fmtCandles(state.candlesH1)}
@@ -1047,19 +1047,19 @@ EMA 50 (H1): ${ema50}
 EMA 200 (H1): ${ema200}
 
 [RECENT NEWS]
-${newsText || 'Новините не са заредени — добави NewsAPI ключ'}
+${newsText || 'Haberlerте не са заредени — добави NewsAPI anahtar'}
 
 [NOTE]
-${state.twelveKey ? 'Live данни от Twelve Data API' : 'DEMO данни — добави Twelve Data API ключ за live данни'}`;
+${state.twelveKey ? 'Live данни от Twelve Data API' : 'DEMO данни — добави Twelve Data API anahtar за live данни'}`;
 }
 
 function getSession(d) {
   const h = d.getUTCHours();
-  if (h >= 0  && h < 7)  return 'Asian Session (ниска волатилност)';
-  if (h >= 7  && h < 12) return 'London Session (висока волатилност)';
-  if (h >= 12 && h < 16) return 'London+NY Overlap (максимална волатилност)';
-  if (h >= 16 && h < 21) return 'New York Session';
-  return 'Late NY / Pre-Asian';
+  if (h >= 0  && h < 7)  return 'Asya Seansı (düşük volatilite)';
+  if (h >= 7  && h < 12) return 'Londra Seansı (yüksek volatilite)';
+  if (h >= 12 && h < 16) return 'Londra+NY Örtüşmesi (maksimum volatilite)';
+  if (h >= 16 && h < 21) return 'New York Seansı';
+  return 'Geç NY / Asya Öncesi';
 }
 
 // ═══════════════════════════════════════════════
@@ -1075,7 +1075,7 @@ async function sendMessage(overrideText) {
   addMessage('user', text);
 
   if (!state.claudeKey) {
-    addMessage('ai', '⚠️ Нямам Anthropic API ключ.\n\nМоля, въведи го в лявата лента под "ANTHROPIC API KEY" и натисни "ЗАПАЗИ И СВЪРЖИ".\n\nВземи безплатен ключ от: console.anthropic.com');
+    addMessage('ai', '⚠️ Anthropic API anahtarı girilmemiş.\n\nLütfen sol paneldeki "ANTHROPİC API KEY" и натисни "ЗАПАЗИ И СВЪРЖИ".\n\nÜcretsiz anahtar al: console.anthropic.com');
     return;
   }
 
@@ -1117,7 +1117,7 @@ async function sendMessage(overrideText) {
 
       thinkingEl.remove();
       if (response.status === 401) {
-        addMessage('ai', '❌ Невалиден Anthropic API ключ (грешка 401).\n\nПровери:\n• Ключът започва ли с "sk-ant-"\n• Копиран ли е целият ключ без интервали\n• Има ли активен кредит на console.anthropic.com');
+        addMessage('ai', '❌ Невалиден Anthropic API anahtar (грешка 401).\n\nПровери:\n• Anahtarът започва ли с "sk-ant-"\n• Копиран ли е целият anahtar без интервали\n• Има ли активен кредит на console.anthropic.com');
       } else if (response.status === 429) {
         addMessage('ai', '⚠️ Твърде много заявки (rate limit).\n\nИзчакай 30 секунди и опитай отново.');
       } else {
@@ -1131,7 +1131,7 @@ async function sendMessage(overrideText) {
 
     if (data.error) {
       thinkingEl.remove();
-      addMessage('ai', `❌ API грешка: ${data.error.message}\n\nПровери дали API ключът е правилен.`);
+      addMessage('ai', `❌ API грешка: ${data.error.message}\n\nПровери дали API anahtarът е правилен.`);
       state.conversation.pop();
     } else {
       const reply = data.content[0].text;
@@ -1163,9 +1163,9 @@ function addMessage(role, text) {
   div.className = `message ${role}`;
   const now = new Date().toLocaleTimeString('bg-BG', { hour:'2-digit', minute:'2-digit' });
   div.innerHTML = `
-    <div class="msg-avatar ${role}">${role === 'ai' ? 'Au' : 'Ти'}</div>
+    <div class="msg-avatar ${role}">${role === 'ai' ? 'Au' : 'Sen'}</div>
     <div class="msg-body">
-      <div class="msg-meta">${role === 'ai' ? 'XAU/USD ASSISTANT' : 'Ти'} · ${now}</div>
+      <div class="msg-meta">${role === 'ai' ? 'XAU/USD ASİSTAN' : 'Ти'} · ${now}</div>
       <div class="msg-content">${formatMessage(text)}</div>
     </div>`;
   container.appendChild(div);
@@ -1182,7 +1182,7 @@ function addThinking() {
     <div class="msg-body">
       <div class="msg-meta">XAU/USD ASSISTANT · анализира...</div>
       <div class="thinking">
-        Обработвам данните
+        Veriler işleniyor
         <div class="thinking-dots"><span></span><span></span><span></span></div>
       </div>
     </div>`;
@@ -1259,21 +1259,21 @@ document.getElementById('calendar-list').innerHTML = `
     <div class="event-impact impact-high"></div>
     <div class="event-info">
       <div class="event-name">US Non-Farm Payrolls</div>
-      <div class="event-time">Петък 15:30 GMT · High Impact</div>
+      <div class="event-time">Cuma 15:30 GMT · Yüksek Etki</div>
     </div>
   </div>
   <div class="event-item">
     <div class="event-impact impact-high"></div>
     <div class="event-info">
       <div class="event-name">FOMC Meeting Minutes</div>
-      <div class="event-time">Сряда 19:00 GMT · High Impact</div>
+      <div class="event-time">Çarşamba 19:00 GMT · Yüksek Etki</div>
     </div>
   </div>
   <div class="event-item">
     <div class="event-impact impact-medium"></div>
     <div class="event-info">
       <div class="event-name">US CPI (Core)</div>
-      <div class="event-time">Вторник 15:30 GMT · Medium</div>
+      <div class="event-time">Salı 15:30 GMT · Orta Etki</div>
     </div>
   </div>`;
 </script>
