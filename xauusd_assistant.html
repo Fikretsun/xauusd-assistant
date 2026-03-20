@@ -1,0 +1,1234 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>XAU/USD Trading Assistant</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:        #0a0c0f;
+    --bg2:       #111318;
+    --bg3:       #181c22;
+    --border:    #1f2530;
+    --border2:   #2a3240;
+    --gold:      #c9a84c;
+    --gold2:     #e8c97a;
+    --gold-dim:  #7a6330;
+    --green:     #2ecc71;
+    --red:       #e74c3c;
+    --blue:      #4a9eff;
+    --text:      #dde3ee;
+    --text2:     #7a8599;
+    --text3:     #4a5568;
+    --mono:      'DM Mono', monospace;
+    --sans:      'Syne', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.6;
+    min-height: 100vh;
+    display: grid;
+    grid-template-rows: 56px 1fr;
+    grid-template-columns: 280px 1fr 300px;
+    grid-template-areas:
+      "header header header"
+      "sidebar chat panel";
+  }
+
+  /* ── HEADER ── */
+  header {
+    grid-area: header;
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    gap: 16px;
+  }
+
+  .logo {
+    font-family: var(--sans);
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--gold);
+    letter-spacing: 0.05em;
+  }
+
+  .logo span { color: var(--text2); font-weight: 400; }
+
+  .header-price {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .price-display {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+
+  .price-label {
+    font-size: 10px;
+    color: var(--text3);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .price-value {
+    font-family: var(--sans);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--gold2);
+  }
+
+  .price-change {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+  .price-change.up   { background: rgba(46,204,113,0.12); color: var(--green); }
+  .price-change.down { background: rgba(231,76,60,0.12);  color: var(--red); }
+
+  .status-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 6px var(--green);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+  /* ── SIDEBAR ── */
+  aside {
+    grid-area: sidebar;
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .sidebar-section {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-label {
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 10px;
+  }
+
+  /* API Keys */
+  .api-field {
+    margin-bottom: 8px;
+  }
+  .api-field label {
+    display: block;
+    font-size: 10px;
+    color: var(--text3);
+    margin-bottom: 4px;
+    letter-spacing: 0.08em;
+  }
+  .api-field input {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 10px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 11px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .api-field input:focus { border-color: var(--gold-dim); }
+  .api-field input::placeholder { color: var(--text3); }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+    transition: all 0.15s;
+    letter-spacing: 0.05em;
+  }
+  .btn-gold {
+    background: var(--gold);
+    color: #0a0c0f;
+    width: 100%;
+    margin-top: 4px;
+  }
+  .btn-gold:hover { background: var(--gold2); }
+  .btn-gold:active { transform: scale(0.98); }
+  .btn-ghost {
+    background: var(--bg3);
+    color: var(--text2);
+    border: 1px solid var(--border);
+    width: 100%;
+    margin-top: 6px;
+  }
+  .btn-ghost:hover { border-color: var(--border2); color: var(--text); }
+
+  /* Timeframe pills */
+  .tf-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 5px;
+  }
+  .tf-pill {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 5px 0;
+    text-align: center;
+    cursor: pointer;
+    font-size: 11px;
+    color: var(--text2);
+    transition: all 0.15s;
+  }
+  .tf-pill:hover { border-color: var(--gold-dim); color: var(--gold); }
+  .tf-pill.active { background: rgba(201,168,76,0.1); border-color: var(--gold-dim); color: var(--gold); }
+
+  /* Indicator mini display */
+  .indicator-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .indicator-row:last-child { border-bottom: none; }
+  .ind-name { color: var(--text3); font-size: 11px; }
+  .ind-val  { font-size: 12px; font-weight: 500; }
+  .ind-val.bull { color: var(--green); }
+  .ind-val.bear { color: var(--red); }
+  .ind-val.neutral { color: var(--text2); }
+
+  /* Quick commands */
+  .cmd-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5px;
+  }
+  .cmd-btn {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 6px 8px;
+    color: var(--text2);
+    font-family: var(--mono);
+    font-size: 10px;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.15s;
+    letter-spacing: 0.03em;
+  }
+  .cmd-btn:hover { border-color: var(--gold-dim); color: var(--gold); }
+  .cmd-btn .cmd-icon { font-size: 12px; display: block; margin-bottom: 2px; }
+
+  /* ── CHAT ── */
+  main {
+    grid-area: chat;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  .message {
+    display: flex;
+    gap: 12px;
+    animation: fadeUp 0.3s ease;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .msg-avatar {
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .msg-avatar.ai   { background: rgba(201,168,76,0.15); border: 1px solid var(--gold-dim); color: var(--gold); }
+  .msg-avatar.user { background: var(--bg3); border: 1px solid var(--border); color: var(--text2); }
+
+  .msg-body { flex: 1; min-width: 0; }
+
+  .msg-meta {
+    font-size: 10px;
+    color: var(--text3);
+    margin-bottom: 4px;
+    letter-spacing: 0.05em;
+  }
+
+  .msg-content {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 4px 10px 10px 10px;
+    padding: 12px 14px;
+    line-height: 1.7;
+    color: var(--text);
+    font-size: 13px;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .message.user .msg-content {
+    background: var(--bg3);
+    border-radius: 10px 4px 10px 10px;
+    color: var(--text2);
+  }
+
+  /* Markdown-like styling inside messages */
+  .msg-content strong { color: var(--gold2); font-weight: 500; }
+  .msg-content .section-head {
+    color: var(--gold);
+    font-family: var(--sans);
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-top: 10px;
+    margin-bottom: 4px;
+    display: block;
+  }
+  .msg-content .bull { color: var(--green); }
+  .msg-content .bear { color: var(--red); }
+  .msg-content .warn { color: #f39c12; }
+  .msg-content hr-line {
+    display: block;
+    height: 1px;
+    background: var(--border);
+    margin: 10px 0;
+  }
+
+  /* Thinking indicator */
+  .thinking {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 14px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 4px 10px 10px 10px;
+    color: var(--text3);
+    font-size: 12px;
+  }
+  .thinking-dots span {
+    display: inline-block;
+    width: 4px; height: 4px;
+    background: var(--gold-dim);
+    border-radius: 50%;
+    margin: 0 1px;
+    animation: blink 1.2s infinite;
+  }
+  .thinking-dots span:nth-child(2) { animation-delay: 0.2s; }
+  .thinking-dots span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes blink { 0%,80%,100%{opacity:0.2} 40%{opacity:1} }
+
+  /* Chat input */
+  .chat-input-area {
+    padding: 14px 20px;
+    background: var(--bg2);
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+  }
+
+  #chat-input {
+    flex: 1;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 13px;
+    outline: none;
+    resize: none;
+    min-height: 42px;
+    max-height: 120px;
+    transition: border-color 0.2s;
+    line-height: 1.5;
+  }
+  #chat-input:focus { border-color: var(--gold-dim); }
+  #chat-input::placeholder { color: var(--text3); }
+
+  #send-btn {
+    background: var(--gold);
+    border: none;
+    border-radius: 8px;
+    width: 42px; height: 42px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: #0a0c0f;
+    font-size: 16px;
+    transition: all 0.15s;
+    flex-shrink: 0;
+  }
+  #send-btn:hover  { background: var(--gold2); }
+  #send-btn:active { transform: scale(0.95); }
+  #send-btn:disabled { background: var(--border); color: var(--text3); cursor: not-allowed; }
+
+  /* ── RIGHT PANEL ── */
+  .right-panel {
+    grid-area: panel;
+    background: var(--bg2);
+    border-left: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  .panel-section {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* Calendar events */
+  .event-item {
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .event-item:last-child { border-bottom: none; }
+
+  .event-impact {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    margin-top: 5px;
+    flex-shrink: 0;
+  }
+  .impact-high   { background: var(--red); box-shadow: 0 0 4px var(--red); }
+  .impact-medium { background: #f39c12; }
+  .impact-low    { background: var(--text3); }
+
+  .event-info { flex: 1; }
+  .event-name { font-size: 11px; color: var(--text); margin-bottom: 2px; }
+  .event-time { font-size: 10px; color: var(--text3); }
+
+  /* News items */
+  .news-item {
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  .news-item:hover { opacity: 0.75; }
+  .news-item:last-child { border-bottom: none; }
+  .news-title   { font-size: 11px; color: var(--text); line-height: 1.5; margin-bottom: 3px; }
+  .news-source  { font-size: 10px; color: var(--text3); }
+
+  /* Trade journal */
+  .journal-entry {
+    padding: 8px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    margin-bottom: 6px;
+  }
+  .journal-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 4px;
+  }
+  .journal-result {
+    font-size: 11px;
+    font-weight: 500;
+  }
+  .journal-result.win  { color: var(--green); }
+  .journal-result.loss { color: var(--red); }
+  .journal-detail { font-size: 10px; color: var(--text3); }
+
+  /* Scrollbar styling */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+  /* Toast */
+  #toast {
+    position: fixed;
+    bottom: 20px; left: 50%;
+    transform: translateX(-50%) translateY(60px);
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    color: var(--text);
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 12px;
+    transition: transform 0.3s;
+    z-index: 100;
+    pointer-events: none;
+  }
+  #toast.show { transform: translateX(-50%) translateY(0); }
+
+  .data-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 3px;
+    margin-left: 8px;
+  }
+  .badge-live { background: rgba(46,204,113,0.1); color: var(--green); border: 1px solid rgba(46,204,113,0.2); }
+  .badge-demo { background: rgba(74,158,255,0.1); color: var(--blue); border: 1px solid rgba(74,158,255,0.2); }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">XAU<span>/USD</span> ASSISTANT</div>
+  <span class="data-badge badge-live" id="data-badge">● DEMO</span>
+  <div class="header-price">
+    <div class="price-display">
+      <span class="price-label">XAU/USD</span>
+      <span class="price-value" id="live-price">—</span>
+      <span class="price-change" id="price-change">—</span>
+    </div>
+    <div class="status-dot" id="status-dot"></div>
+  </div>
+</header>
+
+<!-- SIDEBAR -->
+<aside>
+  <div class="sidebar-section">
+    <div class="section-label">API Keys</div>
+    <div class="api-field">
+      <label>ANTHROPIC API KEY</label>
+      <input type="password" id="claude-key" placeholder="sk-ant-..." />
+    </div>
+    <div class="api-field">
+      <label>TWELVE DATA API KEY</label>
+      <input type="password" id="twelve-key" placeholder="Вземи от twelvedata.com" />
+    </div>
+    <div class="api-field">
+      <label>NEWS API KEY</label>
+      <input type="password" id="news-key" placeholder="Вземи от newsapi.org" />
+    </div>
+    <button class="btn btn-gold" onclick="saveKeys()">▶ ЗАПАЗИ И СВЪРЖИ</button>
+    <button class="btn btn-ghost" onclick="fetchAllData()">↻ ОБНОВИ ДАННИ</button>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="section-label">Timeframes</div>
+    <div class="tf-grid">
+      <div class="tf-pill active" onclick="setTF('1h',this)">1H</div>
+      <div class="tf-pill" onclick="setTF('4h',this)">4H</div>
+      <div class="tf-pill" onclick="setTF('1day',this)">D1</div>
+      <div class="tf-pill" onclick="setTF('15min',this)">15M</div>
+      <div class="tf-pill" onclick="setTF('30min',this)">30M</div>
+      <div class="tf-pill" onclick="setTF('1week',this)">W1</div>
+    </div>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="section-label">Индикатори</div>
+    <div class="indicator-row">
+      <span class="ind-name">RSI 14 (H1)</span>
+      <span class="ind-val neutral" id="rsi-h1">—</span>
+    </div>
+    <div class="indicator-row">
+      <span class="ind-name">RSI 14 (H4)</span>
+      <span class="ind-val neutral" id="rsi-h4">—</span>
+    </div>
+    <div class="indicator-row">
+      <span class="ind-name">EMA 50 (H1)</span>
+      <span class="ind-val neutral" id="ema50">—</span>
+    </div>
+    <div class="indicator-row">
+      <span class="ind-name">EMA 200 (H1)</span>
+      <span class="ind-val neutral" id="ema200">—</span>
+    </div>
+    <div class="indicator-row">
+      <span class="ind-name">Trend (H1)</span>
+      <span class="ind-val neutral" id="trend-h1">—</span>
+    </div>
+  </div>
+
+  <div class="sidebar-section" style="flex:1">
+    <div class="section-label">Бързи команди</div>
+    <div class="cmd-grid">
+      <button class="cmd-btn" onclick="quickCmd('анализ')">
+        <span class="cmd-icon">📊</span>Пълен анализ
+      </button>
+      <button class="cmd-btn" onclick="quickCmd('структура')">
+        <span class="cmd-icon">🏗️</span>Структура
+      </button>
+      <button class="cmd-btn" onclick="quickCmd('нива')">
+        <span class="cmd-icon">📍</span>Нива
+      </button>
+      <button class="cmd-btn" onclick="quickCmd('новини')">
+        <span class="cmd-icon">📰</span>Новини
+      </button>
+      <button class="cmd-btn" onclick="quickCmd('сесия')">
+        <span class="cmd-icon">⏰</span>Сесия
+      </button>
+      <button class="cmd-btn" onclick="quickCmd('сценарии')">
+        <span class="cmd-icon">🎯</span>Сценарии
+      </button>
+      <button class="cmd-btn" onclick="quickCmd('дневник')">
+        <span class="cmd-icon">📓</span>Дневник
+      </button>
+      <button class="cmd-btn" onclick="quickCmd('ревю')">
+        <span class="cmd-icon">🔍</span>Ревю
+      </button>
+    </div>
+  </div>
+</aside>
+
+<!-- CHAT -->
+<main>
+  <div class="chat-messages" id="chat-messages">
+    <div class="message">
+      <div class="msg-avatar ai">Au</div>
+      <div class="msg-body">
+        <div class="msg-meta">XAU/USD ASSISTANT · Сега</div>
+        <div class="msg-content">Добре дошъл в твоя XAU/USD Trading Assistant.
+
+За да започнеш:
+1. Въведи API ключовете си в лявата лента
+2. Натисни "ЗАПАЗИ И СВЪРЖИ" — системата ще зареди live данни
+3. Натисни "Пълен анализ" или напиши "анализ"
+
+Ако нямаш API ключове все още, мога да работя с демо данни.
+Напиши "демо анализ" за да видиш как работи системата.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="chat-input-area">
+    <textarea id="chat-input" placeholder="Напиши съобщение... (Enter = изпрати, Shift+Enter = нов ред)" rows="1"></textarea>
+    <button id="send-btn" onclick="sendMessage()">➤</button>
+  </div>
+</main>
+
+<!-- RIGHT PANEL -->
+<div class="right-panel">
+  <div class="panel-section">
+    <div class="section-label">Икономически календар</div>
+    <div id="calendar-list">
+      <div class="event-item">
+        <div class="event-impact impact-high"></div>
+        <div class="event-info">
+          <div class="event-name">— Зарежда се —</div>
+          <div class="event-time">Добави API ключ</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel-section">
+    <div class="section-label">Последни новини</div>
+    <div id="news-list">
+      <div class="news-item">
+        <div class="news-title">Новините ще се заредят след въвеждане на NewsAPI ключ</div>
+        <div class="news-source">newsapi.org — безплатен план</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel-section">
+    <div class="section-label">Трейдинг дневник</div>
+    <button class="btn btn-ghost" onclick="quickCmd('дневник')" style="margin-bottom:10px">+ Нов трейд</button>
+    <div id="journal-list">
+      <div style="color:var(--text3);font-size:11px">Все още няма записани трейдове.</div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════
+const state = {
+  claudeKey: '',
+  twelveKey: '',
+  newsKey:   '',
+  marketData: null,
+  candlesH1:  [],
+  candlesH4:  [],
+  candlesD1:  [],
+  rsiH1: null, rsiH4: null,
+  ema50: null,  ema200: null,
+  news:    [],
+  journal: [],
+  activeTF: '1h',
+  conversation: [],
+  isLoading: false
+};
+
+// System prompt — твоята Reasoning Engine логика
+const SYSTEM_PROMPT = `You are an elite XAU/USD trading assistant. Your role is NOT to make trading decisions — your role is to think, analyze, synthesize and present context so the trader can make better decisions themselves.
+
+You speak Bulgarian (български) at all times.
+
+You are a Senior Market Analyst specializing in XAU/USD (Gold vs US Dollar).
+You think in multiple timeframes simultaneously.
+You combine technical structure with fundamental context.
+You always reason transparently — show your thinking, not just conclusions.
+You never give direct buy/sell signals. You give scenarios, context, and bias.
+
+BLUEPRINT ANALYSIS PIPELINE — run each when asked for full analysis:
+
+BLUEPRINT 1 — Market Structure (Multi-Timeframe): Analyze D1, H4, H1 independently for trend, HH/HL or LH/LL, BOS/CHoCH, and timeframe alignment.
+
+BLUEPRINT 2 — Key Levels: Major resistance, support, current range position, order blocks, FVGs, distance to nearest level.
+
+BLUEPRINT 3 — Indicator Context: RSI H1/H4 (overbought/oversold/divergence), EMA 50 vs EMA 200, overall indicator bias. Structure wins over indicators if conflict.
+
+BLUEPRINT 4 — News & Fundamentals: USD/DXY narrative, gold narrative, upcoming events impact on XAU/USD, fundamental bias.
+
+BLUEPRINT 5 — Session Context: Active session (Asian/London/NY), volatility expectations, hours to next key session.
+
+REASONING ENGINE — after blueprints: resolve conflicts (higher TF wins), build primary scenario with logic, build alternative scenario (invalidation), assess risk (Low/Medium/High), give action bias (WAIT/WATCH/CAUTIOUS LONG BIAS/CAUTIOUS SHORT BIAS).
+
+OUTPUT FORMAT — always structure response with emoji sections:
+📊 XAU/USD АНАЛИЗ | [date/time]
+🕯️ Пазарна структура [analysis + Alignment]
+📍 Ключови нива [Resistance/Support/position]
+📈 Индикатори [RSI, EMA + bias]
+📰 Новини & Фундамент [news + fundamental bias]
+⏰ Сесия [session info]
+🧠 Сценарии [Primary + Alternative]
+⚠️ Риск ниво: [LOW/MEDIUM/HIGH]
+🎯 Action Bias: [WAIT/WATCH/CAUTIOUS LONG BIAS/CAUTIOUS SHORT BIAS]
+
+QUICK COMMANDS: "анализ"=full pipeline, "структура"=BP1 only, "нива"=BP2 only, "новини"=BP4 only, "сесия"=BP5 only, "сценарии"=synthesis only, "дневник"=help log a trade, "ревю"=review a past trade.
+
+HARD RULES: NEVER say buy/sell as instruction. NEVER give specific entry price as recommendation. NEVER predict price with certainty. ALWAYS flag high-impact events within 2h. ALWAYS show reasoning. ALWAYS give both scenarios.`;
+
+// ═══════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════
+window.addEventListener('load', () => {
+  state.claudeKey = localStorage.getItem('claude_key') || '';
+  state.twelveKey = localStorage.getItem('twelve_key') || '';
+  state.newsKey   = localStorage.getItem('news_key')   || '';
+  if (state.claudeKey) document.getElementById('claude-key').value = state.claudeKey;
+  if (state.twelveKey) document.getElementById('twelve-key').value = state.twelveKey;
+  if (state.newsKey)   document.getElementById('news-key').value   = state.newsKey;
+
+  state.journal = JSON.parse(localStorage.getItem('journal') || '[]');
+  renderJournal();
+
+  if (state.twelveKey) fetchAllData();
+  else loadDemoData();
+
+  // Auto-refresh price every 30s
+  setInterval(() => { if (state.twelveKey) fetchPrice(); }, 30000);
+});
+
+// ═══════════════════════════════════════════════
+// KEYS
+// ═══════════════════════════════════════════════
+function saveKeys() {
+  state.claudeKey = document.getElementById('claude-key').value.trim();
+  state.twelveKey = document.getElementById('twelve-key').value.trim();
+  state.newsKey   = document.getElementById('news-key').value.trim();
+  localStorage.setItem('claude_key', state.claudeKey);
+  localStorage.setItem('twelve_key', state.twelveKey);
+  localStorage.setItem('news_key',   state.newsKey);
+  showToast('Ключовете са запазени');
+  fetchAllData();
+}
+
+// ═══════════════════════════════════════════════
+// DATA FETCHING
+// ═══════════════════════════════════════════════
+async function fetchAllData() {
+  if (!state.twelveKey) { loadDemoData(); return; }
+  showToast('Зарежда данни...');
+  await Promise.all([fetchPrice(), fetchCandles('1h'), fetchCandles('4h'), fetchCandles('1day'), fetchRSI('1h'), fetchRSI('4h'), fetchEMA(50), fetchEMA(200)]);
+  if (state.newsKey) await fetchNews();
+  showToast('Данните са заредени ✓');
+  document.getElementById('data-badge').textContent = '● LIVE';
+  document.getElementById('data-badge').className = 'data-badge badge-live';
+}
+
+async function fetchPrice() {
+  if (!state.twelveKey) return;
+  try {
+    const r = await fetch(`https://api.twelvedata.com/price?symbol=XAU/USD&apikey=${state.twelveKey}`);
+    const d = await r.json();
+    if (d.price) {
+      const price = parseFloat(d.price);
+      const prev  = state.marketData?.price || price;
+      state.marketData = { price, prev };
+      updatePriceDisplay(price, prev);
+    }
+  } catch(e) { console.error('Price fetch error:', e); }
+}
+
+async function fetchCandles(interval) {
+  if (!state.twelveKey) return;
+  try {
+    const outputsize = interval === '1day' ? 10 : 20;
+    const r = await fetch(`https://api.twelvedata.com/time_series?symbol=XAU/USD&interval=${interval}&outputsize=${outputsize}&apikey=${state.twelveKey}`);
+    const d = await r.json();
+    if (d.values) {
+      const candles = d.values.reverse().map(c => ({
+        t: c.datetime, o: parseFloat(c.open), h: parseFloat(c.high),
+        l: parseFloat(c.low), c: parseFloat(c.close), v: parseFloat(c.volume || 0)
+      }));
+      if (interval === '1h')   state.candlesH1  = candles;
+      if (interval === '4h')   state.candlesH4  = candles;
+      if (interval === '1day') state.candlesD1  = candles;
+    }
+  } catch(e) { console.error('Candles fetch error:', e); }
+}
+
+async function fetchRSI(interval) {
+  if (!state.twelveKey) return;
+  try {
+    const r = await fetch(`https://api.twelvedata.com/rsi?symbol=XAU/USD&interval=${interval}&time_period=14&apikey=${state.twelveKey}`);
+    const d = await r.json();
+    if (d.values && d.values[0]) {
+      const val = parseFloat(d.values[0].rsi).toFixed(1);
+      if (interval === '1h') { state.rsiH1 = val; updateRSI('rsi-h1', val); }
+      if (interval === '4h') { state.rsiH4 = val; updateRSI('rsi-h4', val); }
+    }
+  } catch(e) { console.error('RSI fetch error:', e); }
+}
+
+async function fetchEMA(period) {
+  if (!state.twelveKey) return;
+  try {
+    const r = await fetch(`https://api.twelvedata.com/ema?symbol=XAU/USD&interval=1h&time_period=${period}&apikey=${state.twelveKey}`);
+    const d = await r.json();
+    if (d.values && d.values[0]) {
+      const val = parseFloat(d.values[0].ema).toFixed(2);
+      if (period === 50)  { state.ema50  = val; document.getElementById('ema50').textContent  = val; }
+      if (period === 200) { state.ema200 = val; document.getElementById('ema200').textContent = val; }
+      updateTrend();
+    }
+  } catch(e) { console.error('EMA fetch error:', e); }
+}
+
+async function fetchNews() {
+  if (!state.newsKey) return;
+  try {
+    const q = encodeURIComponent('gold XAU OR "Federal Reserve" OR "US dollar" OR inflation');
+    const r = await fetch(`https://newsapi.org/v2/everything?q=${q}&language=en&sortBy=publishedAt&pageSize=8&apiKey=${state.newsKey}`);
+    const d = await r.json();
+    if (d.articles) {
+      state.news = d.articles.slice(0, 8);
+      renderNews();
+    }
+  } catch(e) { console.error('News fetch error:', e); }
+}
+
+// ═══════════════════════════════════════════════
+// UI UPDATES
+// ═══════════════════════════════════════════════
+function updatePriceDisplay(price, prev) {
+  const el     = document.getElementById('live-price');
+  const chEl   = document.getElementById('price-change');
+  const change = ((price - prev) / prev * 100).toFixed(2);
+  el.textContent = '$' + price.toFixed(2);
+  chEl.textContent = (change >= 0 ? '+' : '') + change + '%';
+  chEl.className = 'price-change ' + (change >= 0 ? 'up' : 'down');
+}
+
+function updateRSI(id, val) {
+  const el = document.getElementById(id);
+  el.textContent = val;
+  if (val > 70) { el.className = 'ind-val bear'; }
+  else if (val < 30) { el.className = 'ind-val bull'; }
+  else { el.className = 'ind-val neutral'; }
+}
+
+function updateTrend() {
+  const price = state.marketData?.price;
+  const ema50 = parseFloat(state.ema50);
+  const ema200 = parseFloat(state.ema200);
+  if (!price || !ema50 || !ema200) return;
+  const el = document.getElementById('trend-h1');
+  if (price > ema50 && ema50 > ema200) { el.textContent = '↑ Bullish'; el.className = 'ind-val bull'; }
+  else if (price < ema50 && ema50 < ema200) { el.textContent = '↓ Bearish'; el.className = 'ind-val bear'; }
+  else { el.textContent = '↔ Mixed'; el.className = 'ind-val neutral'; }
+}
+
+function renderNews() {
+  const el = document.getElementById('news-list');
+  if (!state.news.length) return;
+  el.innerHTML = state.news.map(n => `
+    <div class="news-item" onclick="window.open('${n.url}','_blank')">
+      <div class="news-title">${n.title?.substring(0,90)}${n.title?.length > 90 ? '…' : ''}</div>
+      <div class="news-source">${n.source?.name} · ${timeAgo(n.publishedAt)}</div>
+    </div>`).join('');
+}
+
+function renderJournal() {
+  const el = document.getElementById('journal-list');
+  if (!state.journal.length) {
+    el.innerHTML = '<div style="color:var(--text3);font-size:11px">Все още няма записани трейдове.</div>';
+    return;
+  }
+  el.innerHTML = state.journal.slice(-5).reverse().map(t => `
+    <div class="journal-entry">
+      <div class="journal-header">
+        <span style="font-size:11px;color:var(--text2)">${t.direction} · ${t.date}</span>
+        <span class="journal-result ${t.result > 0 ? 'win' : 'loss'}">${t.result > 0 ? '+' : ''}${t.result}R</span>
+      </div>
+      <div class="journal-detail">В: $${t.entry} · SL: $${t.sl} · TP: $${t.tp}</div>
+      ${t.note ? `<div class="journal-detail" style="margin-top:3px;font-style:italic">${t.note}</div>` : ''}
+    </div>`).join('');
+}
+
+// ═══════════════════════════════════════════════
+// DEMO DATA
+// ═══════════════════════════════════════════════
+function loadDemoData() {
+  const demoPrice = 3245.50;
+  state.marketData = { price: demoPrice, prev: 3232.10 };
+  state.rsiH1 = 58.4; state.rsiH4 = 62.1;
+  state.ema50 = 3218.40; state.ema200 = 3156.80;
+  state.candlesH1 = generateDemoCandles(demoPrice, 20, 60);
+  state.candlesH4 = generateDemoCandles(demoPrice, 10, 240);
+  state.candlesD1 = generateDemoCandles(demoPrice, 7, 1440);
+  state.news = [
+    { title: 'Gold hits new highs as Fed signals rate pause', source: { name: 'Reuters' }, publishedAt: new Date(Date.now()-3600000).toISOString(), url: '#' },
+    { title: 'Dollar weakens ahead of NFP data release', source: { name: 'Bloomberg' }, publishedAt: new Date(Date.now()-7200000).toISOString(), url: '#' },
+    { title: 'Central banks continue record gold purchases in Q1', source: { name: 'FT' }, publishedAt: new Date(Date.now()-10800000).toISOString(), url: '#' },
+  ];
+  updatePriceDisplay(demoPrice, 3232.10);
+  updateRSI('rsi-h1', '58.4'); updateRSI('rsi-h4', '62.1');
+  document.getElementById('ema50').textContent  = '3218.40';
+  document.getElementById('ema200').textContent = '3156.80';
+  document.getElementById('trend-h1').textContent = '↑ Bullish';
+  document.getElementById('trend-h1').className  = 'ind-val bull';
+  renderNews();
+  document.getElementById('data-badge').textContent = '● DEMO';
+  document.getElementById('data-badge').className = 'data-badge badge-demo';
+}
+
+function generateDemoCandles(basePrice, count, minuteInterval) {
+  const candles = [];
+  let price = basePrice - (count * 2);
+  for (let i = 0; i < count; i++) {
+    const o = price;
+    const h = o + Math.random() * 15;
+    const l = o - Math.random() * 10;
+    const c = l + Math.random() * (h - l);
+    price = c;
+    candles.push({ o, h, l, c, v: Math.random() * 1000 });
+  }
+  return candles;
+}
+
+// ═══════════════════════════════════════════════
+// BUILD CONTEXT FOR CLAUDE
+// ═══════════════════════════════════════════════
+function buildMarketContext() {
+  const price   = state.marketData?.price || 'N/A';
+  const rsiH1   = state.rsiH1  || 'N/A';
+  const rsiH4   = state.rsiH4  || 'N/A';
+  const ema50   = state.ema50  || 'N/A';
+  const ema200  = state.ema200 || 'N/A';
+
+  const fmtCandles = (arr) => arr.slice(-5).map(c =>
+    `O:${c.o?.toFixed(1)} H:${c.h?.toFixed(1)} L:${c.l?.toFixed(1)} C:${c.c?.toFixed(1)}`
+  ).join(' | ');
+
+  const newsText = state.news.slice(0, 5).map((n, i) =>
+    `${i+1}. ${n.title} — ${n.source?.name}`
+  ).join('\n');
+
+  const now = new Date();
+  const session = getSession(now);
+
+  return `[MARKET DATA]
+Symbol: XAU/USD
+Live Price: $${price}
+Time: ${now.toUTCString()}
+Session: ${session}
+
+[TIMEFRAMES — последни 5 свещи]
+D1 (Daily): ${fmtCandles(state.candlesD1)}
+H4 (4-hour): ${fmtCandles(state.candlesH4)}
+H1 (1-hour): ${fmtCandles(state.candlesH1)}
+
+[INDICATORS]
+RSI 14 (H1): ${rsiH1}
+RSI 14 (H4): ${rsiH4}
+EMA 50 (H1): ${ema50}
+EMA 200 (H1): ${ema200}
+
+[RECENT NEWS]
+${newsText || 'Новините не са заредени — добави NewsAPI ключ'}
+
+[NOTE]
+${state.twelveKey ? 'Live данни от Twelve Data API' : 'DEMO данни — добави Twelve Data API ключ за live данни'}`;
+}
+
+function getSession(d) {
+  const h = d.getUTCHours();
+  if (h >= 0  && h < 7)  return 'Asian Session (ниска волатилност)';
+  if (h >= 7  && h < 12) return 'London Session (висока волатилност)';
+  if (h >= 12 && h < 16) return 'London+NY Overlap (максимална волатилност)';
+  if (h >= 16 && h < 21) return 'New York Session';
+  return 'Late NY / Pre-Asian';
+}
+
+// ═══════════════════════════════════════════════
+// CHAT
+// ═══════════════════════════════════════════════
+async function sendMessage(overrideText) {
+  const input = document.getElementById('chat-input');
+  const text  = overrideText || input.value.trim();
+  if (!text || state.isLoading) return;
+  input.value = '';
+  input.style.height = 'auto';
+
+  addMessage('user', text);
+
+  if (!state.claudeKey) {
+    addMessage('ai', '⚠️ Нямам Anthropic API ключ.\n\nМоля, въведи го в лявата лента под "ANTHROPIC API KEY" и натисни "ЗАПАЗИ И СВЪРЖИ".\n\nВземи безплатен ключ от: console.anthropic.com');
+    return;
+  }
+
+  state.isLoading = true;
+  document.getElementById('send-btn').disabled = true;
+  const thinkingEl = addThinking();
+
+  const context  = buildMarketContext();
+  const userMsg  = `${context}\n\n---\n\nПотребителят пита: ${text}`;
+
+  state.conversation.push({ role: 'user', content: userMsg });
+  if (state.conversation.length > 20) state.conversation = state.conversation.slice(-20);
+
+  // CORS fix: when running from file://, route through a CORS proxy
+  const isLocal = location.protocol === 'file:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+  const ANTHROPIC_URL = isLocal
+    ? 'https://corsproxy.io/?https://api.anthropic.com/v1/messages'
+    : 'https://api.anthropic.com/v1/messages';
+
+  try {
+    const response = await fetch(ANTHROPIC_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': state.claudeKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-calls': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-5',
+        max_tokens: 2000,
+        system: SYSTEM_PROMPT,
+        messages: state.conversation
+      })
+    });
+
+    if (!response.ok) {
+      const errText = await response.text();
+      let errMsg = `HTTP ${response.status}`;
+      try {
+        const errJson = JSON.parse(errText);
+        errMsg = errJson.error?.message || errMsg;
+      } catch(_) {}
+
+      thinkingEl.remove();
+      if (response.status === 401) {
+        addMessage('ai', '❌ Невалиден Anthropic API ключ (грешка 401).\n\nПровери:\n• Ключът започва ли с "sk-ant-"\n• Копиран ли е целият ключ без интервали\n• Има ли активен кредит на console.anthropic.com');
+      } else if (response.status === 429) {
+        addMessage('ai', '⚠️ Твърде много заявки (rate limit).\n\nИзчакай 30 секунди и опитай отново.');
+      } else {
+        addMessage('ai', `❌ API грешка ${response.status}: ${errMsg}`);
+      }
+      state.conversation.pop();
+      return;
+    }
+
+    const data = await response.json();
+
+    if (data.error) {
+      thinkingEl.remove();
+      addMessage('ai', `❌ API грешка: ${data.error.message}\n\nПровери дали API ключът е правилен.`);
+      state.conversation.pop();
+    } else {
+      const reply = data.content[0].text;
+      thinkingEl.remove();
+      addMessage('ai', reply);
+      state.conversation.push({ role: 'assistant', content: reply });
+
+      if (text.toLowerCase().includes('дневник') && reply.includes('записан')) {
+        extractAndSaveTrade(reply);
+      }
+    }
+  } catch(e) {
+    thinkingEl.remove();
+    let errDetail = e.message;
+    if (e.message.includes('fetch')) {
+      errDetail = 'Няма интернет връзка или CORS proxy не отговаря.\n\nРешение: Качи файла на GitHub Pages (безплатно, 5 мин) и CORS проблемът изчезва напълно.';
+    }
+    addMessage('ai', `❌ Грешка при свързване:\n\n${errDetail}`);
+    state.conversation.pop();
+  }
+
+  state.isLoading = false;
+  document.getElementById('send-btn').disabled = false;
+}
+
+function addMessage(role, text) {
+  const container = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = `message ${role}`;
+  const now = new Date().toLocaleTimeString('bg-BG', { hour:'2-digit', minute:'2-digit' });
+  div.innerHTML = `
+    <div class="msg-avatar ${role}">${role === 'ai' ? 'Au' : 'Ти'}</div>
+    <div class="msg-body">
+      <div class="msg-meta">${role === 'ai' ? 'XAU/USD ASSISTANT' : 'Ти'} · ${now}</div>
+      <div class="msg-content">${formatMessage(text)}</div>
+    </div>`;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+  return div;
+}
+
+function addThinking() {
+  const container = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = 'message';
+  div.innerHTML = `
+    <div class="msg-avatar ai">Au</div>
+    <div class="msg-body">
+      <div class="msg-meta">XAU/USD ASSISTANT · анализира...</div>
+      <div class="thinking">
+        Обработвам данните
+        <div class="thinking-dots"><span></span><span></span><span></span></div>
+      </div>
+    </div>`;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+  return div;
+}
+
+function formatMessage(text) {
+  return text
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/📊|🕯️|📍|📈|📰|⏰|🧠|⚠️|🎯/g, m => `<span class="section-head">${m}</span>`)
+    .replace(/\b(Bullish|BULLISH|↑)\b/g, '<span class="bull">$1</span>')
+    .replace(/\b(Bearish|BEARISH|↓)\b/g, '<span class="bear">$1</span>')
+    .replace(/\b(HIGH RISK|ВИСОК РИСК)\b/g, '<span class="bear">$1</span>')
+    .replace(/\b(LOW RISK|НИСЪК РИСК)\b/g, '<span class="bull">$1</span>')
+    .replace(/\b(MEDIUM RISK|СРЕДЕН РИСК)\b/g, '<span class="warn">$1</span>')
+    .replace(/---/g, '<hr-line></hr-line>');
+}
+
+// ═══════════════════════════════════════════════
+// QUICK COMMANDS & HELPERS
+// ═══════════════════════════════════════════════
+function quickCmd(cmd) {
+  document.getElementById('chat-input').value = cmd;
+  sendMessage(cmd);
+}
+
+function setTF(tf, el) {
+  document.querySelectorAll('.tf-pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  state.activeTF = tf;
+}
+
+function timeAgo(iso) {
+  const diff = Date.now() - new Date(iso);
+  const h = Math.floor(diff / 3600000);
+  const m = Math.floor(diff / 60000);
+  if (h > 0) return `${h}ч ago`;
+  if (m > 0) return `${m}мин ago`;
+  return 'Сега';
+}
+
+function extractAndSaveTrade(text) {
+  // Simple extraction — Claude ще форматира структурирано при "дневник" команда
+  console.log('Trade extraction from:', text.substring(0, 100));
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ═══════════════════════════════════════════════
+// INPUT HANDLING
+// ═══════════════════════════════════════════════
+document.getElementById('chat-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+});
+
+document.getElementById('chat-input').addEventListener('input', function() {
+  this.style.height = 'auto';
+  this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+});
+
+// Demo calendar
+document.getElementById('calendar-list').innerHTML = `
+  <div class="event-item">
+    <div class="event-impact impact-high"></div>
+    <div class="event-info">
+      <div class="event-name">US Non-Farm Payrolls</div>
+      <div class="event-time">Петък 15:30 GMT · High Impact</div>
+    </div>
+  </div>
+  <div class="event-item">
+    <div class="event-impact impact-high"></div>
+    <div class="event-info">
+      <div class="event-name">FOMC Meeting Minutes</div>
+      <div class="event-time">Сряда 19:00 GMT · High Impact</div>
+    </div>
+  </div>
+  <div class="event-item">
+    <div class="event-impact impact-medium"></div>
+    <div class="event-info">
+      <div class="event-name">US CPI (Core)</div>
+      <div class="event-time">Вторник 15:30 GMT · Medium</div>
+    </div>
+  </div>`;
+</script>
+</body>
+</html>
