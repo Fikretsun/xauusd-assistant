@@ -544,8 +544,8 @@
       <input type="password" id="twelve-key" placeholder="Вземи от twelvedata.com" />
     </div>
     <div class="api-field">
-      <label>NEWS API KEY</label>
-      <input type="password" id="news-key" placeholder="Вземи от gnews.io (безплатно)" />
+      <label>НОВИНИ <span style="color:var(--green);font-size:9px">● АВТОМАТИЧНО (RSS)</span></label>
+      <div style="font-size:10px;color:var(--text3);padding:4px 0">Reuters + Kitco — без API ключ</div>
     </div>
     <button class="btn btn-gold" onclick="saveKeys()">▶ ЗАПАЗИ И СВЪРЖИ</button>
     <button class="btn btn-ghost" onclick="fetchAllData()">↻ ОБНОВИ ДАННИ</button>
@@ -788,7 +788,7 @@ async function fetchAllData() {
   if (!state.twelveKey) { loadDemoData(); return; }
   showToast('Зарежда данни...');
   await Promise.all([fetchPrice(), fetchCandles('1h'), fetchCandles('4h'), fetchCandles('1day'), fetchRSI('1h'), fetchRSI('4h'), fetchEMA(50), fetchEMA(200)]);
-  if (state.newsKey) await fetchNews();
+  await fetchNews(); // RSS - no key needed
   showToast('Данните са заредени ✓');
   document.getElementById('data-badge').textContent = '● LIVE';
   document.getElementById('data-badge').className = 'data-badge badge-live';
@@ -854,24 +854,41 @@ async function fetchEMA(period) {
 }
 
 async function fetchNews() {
-  if (!state.newsKey) return;
+  // Use RSS2JSON - free, no API key, no CORS issues
   try {
-    // GNews API supports browser CORS (gnews.io - free plan 100 req/day)
-    const q = encodeURIComponent('gold OR XAU OR inflation OR "Federal Reserve"');
-    const r = await fetch(`https://gnews.io/api/v4/search?q=${q}&lang=en&max=8&apikey=${state.newsKey}`);
-    const d = await r.json();
-    if (d.articles) {
-      state.news = d.articles.slice(0, 8).map(a => ({
-        title: a.title,
-        source: { name: a.source?.name || 'News' },
-        publishedAt: a.publishedAt,
-        url: a.url
-      }));
-      renderNews();
-    } else {
-      console.warn('GNews response:', d);
+    const feeds = [
+      'https://feeds.reuters.com/reuters/businessNews',
+      'https://www.kitco.com/rss/news.xml',
+    ];
+    const proxyBase = 'https://api.rss2json.com/v1/api.json?rss_url=';
+    
+    const results = await Promise.allSettled(
+      feeds.map(f => fetch(proxyBase + encodeURIComponent(f)).then(r => r.json()))
+    );
+    
+    let articles = [];
+    for (const r of results) {
+      if (r.status === 'fulfilled' && r.value.items) {
+        articles = articles.concat(r.value.items.slice(0, 4).map(item => ({
+          title: item.title,
+          source: { name: r.value.feed?.title || 'News' },
+          publishedAt: item.pubDate,
+          url: item.link
+        })));
+      }
     }
-  } catch(e) { console.error('News fetch error:', e); }
+    
+    // Filter for gold/USD relevant news
+    const keywords = ['gold', 'xau', 'dollar', 'fed', 'inflation', 'rate', 'powell', 'silver', 'commodit'];
+    const filtered = articles.filter(a => 
+      keywords.some(k => a.title.toLowerCase().includes(k))
+    );
+    
+    state.news = (filtered.length > 2 ? filtered : articles).slice(0, 8);
+    renderNews();
+  } catch(e) { 
+    console.error('News fetch error:', e);
+  }
 }
 
 // ═══════════════════════════════════════════════
